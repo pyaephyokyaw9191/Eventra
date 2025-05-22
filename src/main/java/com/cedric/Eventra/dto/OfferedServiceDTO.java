@@ -23,7 +23,6 @@ public class OfferedServiceDTO {
     private String name;
     private BigDecimal price;
     private Boolean available;
-    private ServiceCategory serviceCategory;
     private UserDTO provider;
-    private String location;
+//    private String location;
 }

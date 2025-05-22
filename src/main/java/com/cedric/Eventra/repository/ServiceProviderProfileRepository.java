@@ -1,8 +1,10 @@
 package com.cedric.Eventra.repository;
 
 import com.cedric.Eventra.entity.ServiceProviderProfile;
+import com.cedric.Eventra.enums.ServiceCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ServiceProviderProfileRepository extends JpaRepository<ServiceProviderProfile, Long> {
@@ -12,4 +14,6 @@ public interface ServiceProviderProfileRepository extends JpaRepository<ServiceP
 
     // Optional: for checking profile existence
     boolean existsByUserId(Long userId);
+
+    List<ServiceProviderProfile> findByServiceCategory(ServiceCategory category);
 }

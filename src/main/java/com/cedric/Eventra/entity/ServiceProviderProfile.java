@@ -1,5 +1,6 @@
 package com.cedric.Eventra.entity;
 
+import com.cedric.Eventra.enums.ServiceCategory;
 import com.cedric.Eventra.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -34,6 +35,9 @@ public class ServiceProviderProfile {
 
     @Transient
     private Float averageRating;
+
+    @Enumerated(EnumType.STRING)
+    private ServiceCategory serviceCategory;
 
     private String location;
     private String postcode;

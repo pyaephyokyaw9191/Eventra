@@ -26,12 +26,9 @@ public class OfferedService {
     private BigDecimal price;
     private Boolean available;
 
-    @Enumerated(EnumType.STRING)
-    private ServiceCategory serviceCategory;
-
     @ManyToOne
     @JoinColumn(name="provider_id")
     private User provider;
 
-    private String location;       // Optional, for filtering
+//    private String location;       // Optional, for filtering
 }
