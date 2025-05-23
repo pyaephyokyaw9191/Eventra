@@ -18,16 +18,12 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotificationDTO {
+
     private Long id;
-
-    @NotBlank(message = "Subject is required")
     private String subject;
-
-    @NotBlank(message = "Recipient is required")
-    private String recipient;
-
+    private UserDTO recipientUser; // Represents the recipient
     private String body;
     private String bookingReference;
     private NotificationType notificationType;
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }

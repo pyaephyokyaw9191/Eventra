@@ -1,5 +1,6 @@
 package com.cedric.Eventra.dto;
 
+import com.cedric.Eventra.enums.ServiceCategory;
 import com.cedric.Eventra.enums.UserRole;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,8 @@ public class RegistrationRequest {
     // --- Optional fields for SERVICE_PROVIDER only ---
     private String serviceName;
     private String serviceDescription;
+    private String ABN;
+    private ServiceCategory serviceCategory;
     private BigDecimal serviceRate;
     private String location;
     private String postcode;

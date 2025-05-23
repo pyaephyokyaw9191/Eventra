@@ -34,5 +34,4 @@ public class BookingDTO {
     private BookingStatus status;
     private LocalDateTime createdAt;
     private BigDecimal price;
-
 }

@@ -5,6 +5,7 @@ import com.cedric.Eventra.dto.RegistrationRequest;
 import com.cedric.Eventra.dto.Response;
 import com.cedric.Eventra.dto.UserDTO;
 import com.cedric.Eventra.entity.User;
+import com.cedric.Eventra.enums.ServiceCategory;
 
 public interface UserService {
 
@@ -23,4 +24,6 @@ public interface UserService {
     Response deleteOwnAccount();
 
     Response getMyBookingHistory();
+
+    Response getServiceProvidersByCategory(ServiceCategory category);
 }

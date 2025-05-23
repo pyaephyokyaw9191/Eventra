@@ -4,6 +4,7 @@ import com.cedric.Eventra.dto.*;
 import com.cedric.Eventra.entity.Booking;
 import com.cedric.Eventra.entity.ServiceProviderProfile;
 import com.cedric.Eventra.entity.User;
+import com.cedric.Eventra.enums.ServiceCategory;
 import com.cedric.Eventra.enums.UserRole;
 import com.cedric.Eventra.exception.InvalidCredentialException;
 import com.cedric.Eventra.exception.NotFoundException;
@@ -15,12 +16,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,6 +77,9 @@ public class UserServiceImpl implements UserService{
                     .profilePictureUrl(request.getProfilePictureUrl())
                     .coverPhotoUrl(request.getCoverPhotoUrl())
                     .user(user)
+                    .serviceCategory(request.getServiceCategory())
+                    .serviceName(request.getServiceName())
+                    .ABN(request.getABN())
                     .build();
 
             user.setServiceProviderProfile(profile);
@@ -184,6 +191,48 @@ public class UserServiceImpl implements UserService{
                 .status(200)
                 .message(message)
                 .bookings(bookingDTOList)
+                .build();
+    }
+
+    @Override
+    public Response getServiceProvidersByCategory(ServiceCategory category) {
+        if (category == null) {
+            return Response.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Service category cannot be null.")
+                    .build();
+        }
+
+        // Fetch active service provider profiles directly for the given category
+        // Assuming User has an 'isActive' field and ServiceProviderProfile is linked to User
+        // Adjust query if 'isActive' is on ServiceProviderProfile or if no such combined query exists
+        List<ServiceProviderProfile> profiles = serviceProviderProfileRepository.findByServiceCategory(category);
+        // If findByServiceCategoryAndUser_IsActiveTrue doesn't exist, you can do:
+        // List<ServiceProviderProfile> profiles = serviceProviderProfileRepository.findByServiceCategory(category);
+        // And then filter:
+        // .stream().filter(p -> p.getUser() != null && p.getUser().getIsActive() && p.getUser().getRole() == UserRole.SERVICE_PROVIDER).collect(Collectors.toList());
+
+
+        if (profiles.isEmpty()) {
+            return Response.builder()
+                    .status(HttpStatus.OK.value()) // Or NOT_FOUND if you prefer for empty results
+                    .message("No active service providers found for category: " + category.name())
+                    .users(new ArrayList<>()) // Return empty list
+                    .build();
+        }
+
+        // Map the User associated with each profile to UserDTO
+        // UserDTO should contain ServiceProviderProfileDTO
+        List<UserDTO> providerUserDTOs = profiles.stream()
+                .map(ServiceProviderProfile::getUser) // Get the User from the Profile
+                .filter(user -> user != null && user.getIsActive() && user.getRole() == UserRole.SERVICE_PROVIDER) // Double check role and active status
+                .map(user -> modelMapper.map(user, UserDTO.class)) // Map User entity to UserDTO
+                .collect(Collectors.toList());
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Service providers retrieved successfully for category: " + category.name())
+                .users(providerUserDTOs) // Use the 'users' field in your Response DTO
                 .build();
     }
 }
