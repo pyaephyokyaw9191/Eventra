@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
     List<Booking> findByUserId(Long userId);
 
     Optional<Booking> findByBookingReference(String bookingReference);
@@ -21,5 +22,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByOfferedServiceId(Long serviceId);
 
     List<Booking> findByStatus(BookingStatus status);
-
 }

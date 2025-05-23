@@ -22,6 +22,9 @@ public class ServiceProviderProfileDTO {
     private String profilePictureUrl;
     private String coverPhotoUrl;
     private ServiceCategory serviceCategory;
+    // add ons
+    private String serviceName;
+    private String ABN;
 
     // From user
     private String userEmail;

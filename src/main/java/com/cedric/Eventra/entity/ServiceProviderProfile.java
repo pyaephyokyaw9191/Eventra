@@ -39,6 +39,9 @@ public class ServiceProviderProfile {
     @Enumerated(EnumType.STRING)
     private ServiceCategory serviceCategory;
 
+    private String serviceName;
+    private String ABN;
+
     private String location;
     private String postcode;
     private String profilePictureUrl;

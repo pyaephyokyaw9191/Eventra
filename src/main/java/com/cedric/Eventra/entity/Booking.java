@@ -56,5 +56,4 @@ public class  Booking {
         createdAt = LocalDateTime.now();
         if (status == null) status = BookingStatus.PENDING;
     }
-
 }
