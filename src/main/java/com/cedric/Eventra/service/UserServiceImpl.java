@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService{
     private final BookingRepository bookingRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
 
-
     @Override
     public Response registerUser(RegistrationRequest request) {
         // Check if email already exists
@@ -86,7 +85,6 @@ public class UserServiceImpl implements UserService{
             // Save profile explicitly
             serviceProviderProfileRepository.save(profile);
         }
-
         return Response.builder()
                 .status(200)
                 .message("User created successfully")
@@ -211,7 +209,6 @@ public class UserServiceImpl implements UserService{
         // List<ServiceProviderProfile> profiles = serviceProviderProfileRepository.findByServiceCategory(category);
         // And then filter:
         // .stream().filter(p -> p.getUser() != null && p.getUser().getIsActive() && p.getUser().getRole() == UserRole.SERVICE_PROVIDER).collect(Collectors.toList());
-
 
         if (profiles.isEmpty()) {
             return Response.builder()

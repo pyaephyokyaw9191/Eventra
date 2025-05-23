@@ -33,5 +33,9 @@ public class Review {
     @JoinColumn(name="provider_id")
     private ServiceProviderProfile provider;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "offered_service_id") // Can be nullable if some reviews are for provider in general
+    private OfferedService offeredService; // The specific service being reviewed
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

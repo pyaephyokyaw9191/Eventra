@@ -47,5 +47,9 @@ public class Response {
     private NotificationDTO notification;
     private List<NotificationDTO> notifications;
 
+    // Review data output (NEWLY ADDED)
+    private ReviewDTO review;                   // For a single ReviewDTO
+    private List<ReviewDTO> reviews;             // For a list of ReviewDTOs
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 }

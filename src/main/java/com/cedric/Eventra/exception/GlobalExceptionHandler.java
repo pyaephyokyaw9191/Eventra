@@ -20,6 +20,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Handles exceptions due to bad or malformed client requests.
+     */
+    @ExceptionHandler(BadRequestException.class) // Newly added handler
+    public ResponseEntity<Response> handleBadRequestException(BadRequestException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Response> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
         Response errorResponse = Response.builder()

@@ -24,5 +24,5 @@ public class OfferedServiceDTO {
     private BigDecimal price;
     private Boolean available;
     private UserDTO provider;
-//    private String location;
+    private String location;
 }
