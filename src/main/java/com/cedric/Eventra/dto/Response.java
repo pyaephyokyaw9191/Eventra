@@ -51,5 +51,8 @@ public class Response {
     private ReviewDTO review;                   // For a single ReviewDTO
     private List<ReviewDTO> reviews;             // For a list of ReviewDTOs
 
+    // Report data output
+    private ProviderDashboardSummaryDTO dashboardSummary;
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 }

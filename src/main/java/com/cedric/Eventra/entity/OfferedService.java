@@ -30,5 +30,5 @@ public class OfferedService {
     @JoinColumn(name="provider_id")
     private User provider;
 
-//    private String location;       // Optional, for filtering
+    private String location;       // Optional, for filtering
 }

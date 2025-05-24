@@ -28,7 +28,6 @@ public class ProviderDashboardSummaryDTO {
     private Float currentAverageRating;
     private int totalReviews;
 
-    // Optional: More detailed breakdown
-    // private Map<BookingStatus, Long> bookingStatusCounts;
+    private Map<BookingStatus, Long> bookingStatusCounts;
     // private Map<Integer, Long> ratingDistribution; // e.g., {5: 10, 4: 5, ...}
 }
