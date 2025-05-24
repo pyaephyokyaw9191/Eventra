@@ -4,7 +4,7 @@ package com.cedric.Eventra.service;
 import com.cedric.Eventra.dto.PaymentDTO;
 import com.cedric.Eventra.dto.Response;
 import com.cedric.Eventra.dto.SimulatedPaymentRequestDTO;
-import com.cedric.Eventra.dto.request.SimulatedPaymentRequestDTO;
+import com.cedric.Eventra.dto.SimulatedPaymentRequestDTO;
 import com.cedric.Eventra.entity.Booking;
 import com.cedric.Eventra.entity.Payment;
 import com.cedric.Eventra.enums.BookingStatus;
