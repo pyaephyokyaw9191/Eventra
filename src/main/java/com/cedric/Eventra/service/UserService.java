@@ -29,4 +29,6 @@ public interface UserService {
 
     Response getAllActiveServiceProviders();
 
+    Response getServiceProviderById(Long providerUserId);
+
 }

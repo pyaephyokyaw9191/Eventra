@@ -68,4 +68,18 @@ public class UserController {
         Response serviceResponse = userService.getAllActiveServiceProviders();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
+
+    /**
+     * Endpoint to retrieve a specific service provider by their User ID.
+     * Publicly accessible.
+     *
+     * @param providerUserId The User ID of the service provider.
+     * @return ResponseEntity containing the standard Response object with the service provider's details.
+     */
+    @GetMapping("/service-providers/{providerUserId}")
+    // No @PreAuthorize needed if it's a public endpoint
+    public ResponseEntity<Response> getServiceProviderById(@PathVariable Long providerUserId) {
+        Response serviceResponse = userService.getServiceProviderById(providerUserId);
+        return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
+    }
 }

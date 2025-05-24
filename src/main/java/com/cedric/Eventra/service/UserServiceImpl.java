@@ -259,4 +259,33 @@ public class UserServiceImpl implements UserService{
                 .users(serviceProviderDTOs) // Use the 'users' field
                 .build();
     }
+
+
+    @Override
+    public Response getServiceProviderById(Long providerUserId) {
+        User user = userRepository.findById(providerUserId).
+                orElseThrow(() -> new NotFoundException("Service provider not found with ID: " + providerUserId));
+
+        if (user == null) {
+            return Response.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message("Service provider not found with ID: " + providerUserId)
+                    .build();
+        }
+
+        if (user.getRole() != UserRole.SERVICE_PROVIDER) {
+            return Response.builder()
+                    .status(HttpStatus.NOT_FOUND.value()) // Or BAD_REQUEST if ID exists but wrong type
+                    .message("User with ID " + providerUserId + " is not a service provider.")
+                    .build();
+        }
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Service provider retrieved successfully.")
+                .user(userDTO)
+                .build();
+    }
 }

@@ -53,7 +53,7 @@ public class SecurityFilter {
 
                         // Allow access to public services
                         .requestMatchers("/api/services/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/service-providers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/service-providers/**").permitAll()
 
                         // Role-based access
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
