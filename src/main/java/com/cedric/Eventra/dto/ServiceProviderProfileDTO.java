@@ -24,7 +24,7 @@ public class ServiceProviderProfileDTO {
     private ServiceCategory serviceCategory;
     // add ons
     private String serviceName;
-    private String ABN;
+    private String abn;
 
     // From user
     private String userEmail;

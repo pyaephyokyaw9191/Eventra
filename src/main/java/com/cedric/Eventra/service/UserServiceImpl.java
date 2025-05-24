@@ -12,6 +12,7 @@ import com.cedric.Eventra.repository.BookingRepository;
 import com.cedric.Eventra.repository.ServiceProviderProfileRepository;
 import com.cedric.Eventra.repository.UserRepository;
 import com.cedric.Eventra.security.JwtUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,9 +78,10 @@ public class UserServiceImpl implements UserService{
                     .profilePictureUrl(request.getProfilePictureUrl())
                     .coverPhotoUrl(request.getCoverPhotoUrl())
                     .user(user)
+                    .ABN(request.getAbn())
                     .serviceCategory(request.getServiceCategory())
                     .serviceName(request.getServiceName())
-                    .ABN(request.getABN())
+                    .ABN(request.getAbn())
                     .build();
 
             user.setServiceProviderProfile(profile);
@@ -230,6 +233,30 @@ public class UserServiceImpl implements UserService{
                 .status(HttpStatus.OK.value())
                 .message("Service providers retrieved successfully for category: " + category.name())
                 .users(providerUserDTOs) // Use the 'users' field in your Response DTO
+                .build();
+    }
+
+
+    @Override
+    public Response getAllActiveServiceProviders() {
+        List<User> serviceProviderEntities = userRepository.findByRoleAndIsActiveTrue(UserRole.SERVICE_PROVIDER);
+
+        if (serviceProviderEntities.isEmpty()) {
+            return Response.builder()
+                    .status(HttpStatus.OK.value())
+                    .message("No active service providers found.")
+                    .users(Collections.emptyList()) // Use the 'users' field in your Response DTO
+                    .build();
+        }
+
+        List<UserDTO> serviceProviderDTOs = serviceProviderEntities.stream()
+                .map(user -> modelMapper.map(user, UserDTO.class)) // Your UserDTO includes ServiceProviderProfileDTO
+                .collect(Collectors.toList());
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Active service providers retrieved successfully.")
+                .users(serviceProviderDTOs) // Use the 'users' field
                 .build();
     }
 }

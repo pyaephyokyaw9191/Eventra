@@ -26,4 +26,7 @@ public interface UserService {
     Response getMyBookingHistory();
 
     Response getServiceProvidersByCategory(ServiceCategory category);
+
+    Response getAllActiveServiceProviders();
+
 }

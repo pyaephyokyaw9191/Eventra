@@ -62,4 +62,11 @@ public class UserController {
             return ResponseEntity.ok(errorResponse);
         }
     }
+
+    @GetMapping("/service-providers")
+    @PreAuthorize("permitAll()") // Explicitly public, or remove for default security (if any)
+    public ResponseEntity<Response> getAllActiveServiceProviders() {
+        Response serviceResponse = userService.getAllActiveServiceProviders();
+        return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
+    }
 }

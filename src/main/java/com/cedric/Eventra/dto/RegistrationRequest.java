@@ -34,7 +34,7 @@ public class RegistrationRequest {
     // --- Optional fields for SERVICE_PROVIDER only ---
     private String serviceName;
     private String serviceDescription;
-    private String ABN;
+    private String abn;
     private ServiceCategory serviceCategory;
     private BigDecimal serviceRate;
     private String location;
