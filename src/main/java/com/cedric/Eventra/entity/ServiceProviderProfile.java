@@ -33,7 +33,6 @@ public class ServiceProviderProfile {
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @Transient
     private Float averageRating;
 
     @Enumerated(EnumType.STRING)
