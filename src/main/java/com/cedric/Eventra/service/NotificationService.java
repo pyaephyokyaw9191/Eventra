@@ -36,4 +36,6 @@ public interface NotificationService {
     Response getMyNotifications();
 
     Response deleteMyNotification(Long notificationId);
+
+    Response getMyNotificationById(Long notificationId);
 }

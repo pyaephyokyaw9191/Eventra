@@ -31,6 +31,19 @@ public class NotificationController {
     }
 
     /**
+     * Endpoint for an authenticated user to retrieve a specific notification by its ID.
+     *
+     * @param notificationId The ID of the notification to retrieve.
+     * @return ResponseEntity containing the standard Response object with the notification details.
+     */
+    @GetMapping("/{notificationId}") // New Endpoint
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response> getMyNotificationById(@PathVariable Long notificationId) {
+        Response serviceResponse = notificationService.getMyNotificationById(notificationId);
+        return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
+    }
+
+    /**
      * Endpoint for an authenticated user to delete one of their notifications.
      *
      * @param notificationId The ID of the notification to delete.

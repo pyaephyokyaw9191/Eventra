@@ -77,6 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void sendBookingAcceptedNotification(Booking booking) {
         if (booking == null || booking.getUser() == null || booking.getOfferedService() == null) {
             log.error("Cannot send BookingAcceptedNotification, booking details incomplete. Booking ID: {}", booking != null ? booking.getId() : "null");
@@ -94,6 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void sendBookingRejectedNotification(Booking booking) {
         if (booking == null || booking.getUser() == null || booking.getOfferedService() == null) {
             log.error("Cannot send BookingRejectedNotification, booking details incomplete. Booking ID: {}", booking != null ? booking.getId() : "null");
@@ -111,6 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void sendBookingConfirmedNotification(Booking booking) {
         if (booking == null || booking.getUser() == null || booking.getOfferedService() == null || booking.getOfferedService().getProvider() == null) {
             log.error("Cannot send BookingConfirmedNotification, booking details are incomplete. Booking ID: {}", booking != null ? booking.getId() : "null");
@@ -187,6 +190,49 @@ public class NotificationServiceImpl implements NotificationService {
         return Response.builder()
                 .status(HttpStatus.OK.value())
                 .message("Notification deleted successfully.")
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Response getMyNotificationById(Long notificationId) {
+        User currentUser;
+        try {
+            currentUser = userService.getCurrentLoggedInUser();
+        } catch (Exception e) {
+            log.warn("Attempt to fetch notification by ID for unauthenticated user.", e);
+            return Response.builder()
+                    .status(HttpStatus.UNAUTHORIZED.value())
+                    .message("User not authenticated.")
+                    .build();
+        }
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElse(null);
+
+        if (notification == null) {
+            return Response.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message("Notification not found with ID: " + notificationId)
+                    .build();
+        }
+
+        // Authorization check: Ensure the current user is the recipient of this notification
+        // This relies on Notification.recipientUser being correctly set.
+        if (!notification.getRecipientUser().getId().equals(currentUser.getId())) {
+            log.warn("User {} attempted to access notification ID {} not belonging to them.", currentUser.getId(), notificationId);
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("You are not authorized to view this notification.")
+                    .build();
+        }
+
+        NotificationDTO notificationDTO = modelMapper.map(notification, NotificationDTO.class);
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Notification retrieved successfully.")
+                .notification(notificationDTO) // Use the 'notification' field in your Response DTO
                 .build();
     }
 }
