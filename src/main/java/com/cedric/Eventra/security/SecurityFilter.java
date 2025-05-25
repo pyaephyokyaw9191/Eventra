@@ -51,6 +51,11 @@ public class SecurityFilter {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
+                        // --- WebSocket Handshake Endpoint ---
+                        // Allow public access to the WebSocket handshake endpoint (and SockJS fallbacks)
+                        // This is crucial for the initial connection before STOMP CONNECT with token.
+                        .requestMatchers("/ws/**").permitAll() // ADD THIS LINE
+
                         // Allow access to public services
                         .requestMatchers("/api/services/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/service-providers/**").permitAll()
@@ -62,6 +67,10 @@ public class SecurityFilter {
 
                         // Booking should require login, not public
                         .requestMatchers("/api/bookings/**").authenticated()
+
+                        // Chat REST API endpoints (if not covered by broader rules and need specific auth)
+                        // Example: managing chat rooms might require authentication
+                        .requestMatchers("/api/v1/chat/rooms/**").authenticated() // Secure chat room management REST APIs
 
                         // Everything else must be authenticated
                         .anyRequest().authenticated()

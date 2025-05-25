@@ -31,4 +31,14 @@ public interface UserService {
 
     Response getServiceProviderById(Long providerUserId);
 
+    /**
+     * Retrieves a user by their email.
+     * Primarily for internal use, e.g., by security services or other services needing to fetch a User entity.
+     *
+     * @param email The email of the user to retrieve.
+     * @return The User entity.
+     * @throws com.cedric.Eventra.exception.ResourceNotFoundException if user with the email is not found.
+     *                                                                (Or your CustomUserDetailsService might throw UsernameNotFoundException directly)
+     */
+    User getUserByEmail(String email);
 }

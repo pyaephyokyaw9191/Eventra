@@ -1,21 +1,23 @@
 package com.cedric.Eventra.enums;
 
 public enum ServiceCategory {
-    MAKEUP,
-    HAIR_STYLING,
-    PHOTOGRAPHY,
-    MUSIC,
-    VENUE_ORGANIZATION,
-    FLORAL,
+    MAKEUPARTIST,
+    HAIRSTYLIST,
+    PHOTOGRAPHER,
+    EVENTHOST,
+    MUSICIAN,
+    VENUEORGANISER,
+    FLORIST,
     CATERING,
-    VENUE_RENTAL,
-    BARTENDING,
-    MOBILE,
+    VENUERENTAL,
+    BARTENDER,
+    MOBILEBAR,
+    BARISTA,
     COFFEE,
-    ICE_CREAM,
-    CARPENTRY,
-    PAINTING,
-    REMOVAL,
-    PLUMBING,
-    CLEANING
+    ICECREAM,
+    CARPENTER,
+    PAINTER,
+    REMOVALIST,
+    PLUMBER,
+    CLEANER
 }

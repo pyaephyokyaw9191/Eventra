@@ -54,5 +54,10 @@ public class Response {
     // Report data output
     private ProviderDashboardSummaryDTO dashboardSummary;
 
+    // chat service
+    private ChatRoomDTO chatRoom;                // For a single ChatRoomDTO
+    private List<ChatRoomDTO> chatRooms;          // For a list of ChatRoomDTOs
+    private List<ChatMessageDTO> chatMessages;    // For a list of ChatMessageDTOs
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 }

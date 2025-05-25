@@ -8,6 +8,7 @@ import com.cedric.Eventra.enums.ServiceCategory;
 import com.cedric.Eventra.enums.UserRole;
 import com.cedric.Eventra.exception.InvalidCredentialException;
 import com.cedric.Eventra.exception.NotFoundException;
+import com.cedric.Eventra.exception.ResourceNotFoundException;
 import com.cedric.Eventra.repository.BookingRepository;
 import com.cedric.Eventra.repository.ServiceProviderProfileRepository;
 import com.cedric.Eventra.repository.UserRepository;
@@ -117,6 +118,20 @@ public class UserServiceImpl implements UserService{
                 .isActive(user.getIsActive())
                 .expirationTime("6 months")
                 .build();
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        log.debug("Attempting to fetch user by email: {}", email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("User not found with email: {}", email);
+                    // This exception type should align with what your security setup expects
+                    // or what your global exception handler can process gracefully.
+                    // If CustomUserDetailsService throws UsernameNotFoundException, this method might also
+                    // throw that, or a more generic ResourceNotFoundException if that's your pattern.
+                    return new ResourceNotFoundException("User not found with email: " + email);
+                });
     }
 
     @Override
