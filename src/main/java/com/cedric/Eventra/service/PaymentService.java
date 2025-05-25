@@ -21,4 +21,6 @@ public interface PaymentService {
      * @return Response object with payment details.
      */
     Response getPaymentDetailsForBooking(String bookingReference);
+
+    Response processSimulatedSubscriptionFee(SimulatedPaymentRequestDTO paymentRequest);
 }

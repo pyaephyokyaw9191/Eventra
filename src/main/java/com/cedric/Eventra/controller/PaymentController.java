@@ -47,4 +47,19 @@ public class PaymentController {
         Response serviceResponse = paymentService.getPaymentDetailsForBooking(bookingReference);
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
+
+    /**
+     * Endpoint for an authenticated service provider to "pay" their one-time subscription/activation fee.
+     * User must have SERVICE_PROVIDER role and their account should not yet be active.
+     *
+     * @param paymentRequest DTO containing dummy card details for simulation.
+     * @return ResponseEntity containing the standard Response object.
+     */
+    @PostMapping("/subscription/me/simulate")
+    @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
+    public ResponseEntity<Response> simulateMySubscriptionPayment(
+            @Valid @RequestBody SimulatedPaymentRequestDTO paymentRequest) {
+        Response serviceResponse = paymentService.processSimulatedSubscriptionFee(paymentRequest);
+        return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
+    }
 }

@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService{
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .role(role)
-                .isActive(true)
+                .isActive(false)
                 .build();
 
         // Persist user to generate ID

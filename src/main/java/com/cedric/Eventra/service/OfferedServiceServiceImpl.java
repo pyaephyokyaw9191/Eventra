@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,13 @@ public class OfferedServiceServiceImpl implements OfferedServiceService{
                     .build();
         }
 
+        // --- !!! NEW CHECK FOR ACTIVE STATUS !!! ---
+        if (!provider.getIsActive()) { // Assuming User entity has getIsActive()
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Your provider account is not active. Please complete your subscription payment.")
+                    .build();
+        }
         // Validate essential fields from DTO before mapping
         if (offeredServiceDTO.getName() == null || offeredServiceDTO.getName().isBlank()) {
             return Response.builder().status(HttpStatus.BAD_REQUEST.value()).message("Service name is required.").build();
@@ -69,6 +77,13 @@ public class OfferedServiceServiceImpl implements OfferedServiceService{
     public Response deleteOfferedService(Long serviceId) {
         User provider = userService.getCurrentLoggedInUser();
 
+        if (!provider.getIsActive()) {
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Your provider account is not active.")
+                    .build();
+        }
+
         OfferedService offeredService = offeredServiceRepository.findById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service not found"));
 
@@ -92,6 +107,12 @@ public class OfferedServiceServiceImpl implements OfferedServiceService{
     public Response updateOfferedService(OfferedServiceDTO offeredServiceDTO) {
 
         User provider = userService.getCurrentLoggedInUser();
+        if (!provider.getIsActive()) {
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Your provider account is not active.")
+                    .build();
+        }
         OfferedService existingService = offeredServiceRepository.findById(offeredServiceDTO.getId())
                 .orElseThrow(() -> new NotFoundException("Service not found"));
 
@@ -162,6 +183,15 @@ public class OfferedServiceServiceImpl implements OfferedServiceService{
             return Response.builder()
                     .status(HttpStatus.FORBIDDEN.value())
                     .message("Access denied. User is not a service provider.")
+                    .build();
+        }
+
+        // Add active check for viewing own services
+        if (!currentProvider.getIsActive()) {
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Your provider account is not active. Please complete your subscription.")
+                    .services(Collections.emptyList()) // Return empty list if inactive
                     .build();
         }
 
