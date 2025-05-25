@@ -1,4 +1,4 @@
-package com.cedric.Eventra.service.impl; // Assuming this is the correct package for your Impl
+package com.cedric.Eventra.service; // Assuming this is the correct package for your Impl
 
 import com.cedric.Eventra.dto.OfferedServiceDTO;
 import com.cedric.Eventra.dto.Response;

@@ -1,4 +1,4 @@
-package com.cedric.Eventra.service.impl;
+package com.cedric.Eventra.service;
 
 import com.cedric.Eventra.exception.FileStorageException;
 import com.cedric.Eventra.exception.ResourceNotFoundException;

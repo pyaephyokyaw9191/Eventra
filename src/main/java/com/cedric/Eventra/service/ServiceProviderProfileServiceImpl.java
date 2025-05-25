@@ -1,4 +1,4 @@
-package com.cedric.Eventra.service.impl;
+package com.cedric.Eventra.service;
 
 import com.cedric.Eventra.dto.Response;
 import com.cedric.Eventra.dto.ServiceProviderProfileDTO;
