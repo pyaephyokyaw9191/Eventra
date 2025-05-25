@@ -19,8 +19,8 @@ public class ServiceProviderProfileDTO {
 //    private Long userId;
     private String location;
     private String postcode;
-    private String profilePictureUrl;
-    private String coverPhotoUrl;
+    private String profilePictureUrl; // Will hold the full URL
+    private String coverPhotoUrl;   // Will hold the full URL
     private ServiceCategory serviceCategory;
     // add ons
     private String serviceName;

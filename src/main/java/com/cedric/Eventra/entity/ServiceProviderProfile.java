@@ -43,6 +43,10 @@ public class ServiceProviderProfile {
 
     private String location;
     private String postcode;
-    private String profilePictureUrl;
-    private String coverPhotoUrl;
+
+    @Column(name = "profile_picture_filename") // Changed from profilePictureUrl
+    private String profilePictureFilename;
+
+    @Column(name = "cover_photo_filename")   // Changed from coverPhotoUrl
+    private String coverPhotoFilename;
 }

@@ -25,4 +25,5 @@ public class OfferedServiceDTO {
     private Boolean available;
     private UserDTO provider;
     private String location;
+    private String imageUrl; // New field for the full, accessible URL of the image
 }

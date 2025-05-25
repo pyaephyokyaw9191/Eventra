@@ -23,6 +23,18 @@ public class GlobalExceptionHandler {
     /**
      * Handles exceptions due to bad or malformed client requests.
      */
+    @ExceptionHandler(FileStorageException.class) // Newly added handler
+    public ResponseEntity<Response> handleFileStroageException(FileStorageException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles exceptions due to bad or malformed client requests.
+     */
     @ExceptionHandler(BadRequestException.class) // Newly added handler
     public ResponseEntity<Response> handleBadRequestException(BadRequestException ex, WebRequest request) {
         Response errorResponse = Response.builder()

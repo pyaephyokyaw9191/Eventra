@@ -54,6 +54,10 @@ public class Response {
     // Report data output
     private ProviderDashboardSummaryDTO dashboardSummary;
 
+    // ServiceProviderProfile data output (NEWLY ADDED)
+    private ServiceProviderProfileDTO serviceProviderProfile;
+    private List<ServiceProviderProfileDTO> serviceProviderProfiles;
+
     // chat service
     private ChatRoomDTO chatRoom;                // For a single ChatRoomDTO
     private List<ChatRoomDTO> chatRooms;          // For a list of ChatRoomDTOs
