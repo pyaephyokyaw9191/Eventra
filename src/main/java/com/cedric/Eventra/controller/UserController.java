@@ -83,6 +83,20 @@ public class UserController {
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
+    // ------------- NEW ENDPOINT -------------
+    /**
+     * Endpoint to search for active service providers by service name.
+     * Publicly accessible.
+     *
+     * @param name The service name query to search for.
+     * @return ResponseEntity containing the standard Response object with the list of matching service providers.
+     */
+    @GetMapping("/service-providers/search")
+    public ResponseEntity<Response> searchServiceProvidersByName(@RequestParam("name") String name) {
+        Response serviceResponse = userService.searchServiceProvidersByName(name);
+        return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
+    }
+
     // --- Admin Specific Endpoints ---
 
     @GetMapping("/admin/customers")

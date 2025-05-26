@@ -453,5 +453,45 @@ public class UserServiceImpl implements UserService{
                 .user(userDTO)
                 .build();
     }
+
+    // ------------- NEW METHOD IMPLEMENTATION -------------
+    @Override
+    public Response searchServiceProvidersByName(String serviceName) {
+        if (serviceName == null || serviceName.trim().isEmpty()) {
+            return Response.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Service name cannot be empty.")
+                    .users(Collections.emptyList())
+                    .build();
+        }
+
+        log.info("Searching for service providers with service name containing: {}", serviceName);
+
+        // Using the new repository method
+        List<ServiceProviderProfile> profiles = serviceProviderProfileRepository
+                .findByServiceNameContainingIgnoreCaseAndUserIsActiveTrueAndUserRoleServiceProvider(serviceName);
+
+        if (profiles.isEmpty()) {
+            return Response.builder()
+                    .status(HttpStatus.OK.value()) // Or NOT_FOUND if preferred for empty search results
+                    .message("No active service providers found matching the name: " + serviceName)
+                    .users(Collections.emptyList())
+                    .build();
+        }
+
+        // Map the User associated with each profile to UserDTO
+        List<UserDTO> providerUserDTOs = profiles.stream()
+                .map(ServiceProviderProfile::getUser) // Get the User from the Profile
+                // The repository query already filters by isActive and role, but an additional check here won't harm
+                .filter(user -> user != null && user.getIsActive() && user.getRole() == UserRole.SERVICE_PROVIDER)
+                .map(user -> modelMapper.map(user, UserDTO.class)) // Map User entity to UserDTO
+                .collect(Collectors.toList());
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Service providers retrieved successfully for service name: " + serviceName)
+                .users(providerUserDTOs)
+                .build();
+    }
 }
 

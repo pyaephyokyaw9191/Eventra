@@ -33,6 +33,9 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
+    // New method for searching by service name
+    Response searchServiceProvidersByName(String serviceName);
+
     // Admin specific methods
     Response getAllCustomersAdmin();
     Response getAllServiceProvidersAdmin();
