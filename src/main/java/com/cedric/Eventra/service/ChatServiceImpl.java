@@ -1,4 +1,4 @@
-package com.cedric.Eventra.service.impl;
+package com.cedric.Eventra.service;
 
 import com.cedric.Eventra.dto.ChatMessageDTO;
 import com.cedric.Eventra.dto.ChatRoomDTO;

@@ -62,8 +62,24 @@ public class UserServiceImpl implements UserService{
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .role(role)
-                .isActive(false)
                 .build();
+
+        // Set isActive based on role
+        if (request.getRole() == UserRole.CUSTOMER) {
+            user.setIsActive(true); // Customers are active immediately
+            log.info("Registering new CUSTOMER {} - setting isActive to true.", user.getEmail());
+        } else if (request.getRole() == UserRole.SERVICE_PROVIDER) {
+            user.setIsActive(false); // Service Providers start as inactive, pending subscription
+            log.info("Registering new SERVICE_PROVIDER {} - setting isActive to false.", user.getEmail());
+            // Logic to create ServiceProviderProfile would also go here
+        } else if (user.getRole() == UserRole.ADMIN) {
+            user.setIsActive(true); // Admins are typically active immediately (or created via a different mechanism)
+        } else {
+            // Handle unknown role or default to inactive
+            user.setIsActive(false);
+            log.warn("User {} registered with an unhandled role {} or no role, setting isActive to false.", user.getEmail(), request.getRole());
+        }
+
 
         // Persist user to generate ID
         userRepository.save(user);
@@ -179,7 +195,7 @@ public class UserServiceImpl implements UserService{
 
         return Response.builder()
                 .status(200)
-                .message("User created successfully")
+                .message("User updated successfully")
                 .build();
     }
 
