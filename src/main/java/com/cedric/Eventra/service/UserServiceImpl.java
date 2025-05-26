@@ -13,6 +13,7 @@ import com.cedric.Eventra.repository.BookingRepository;
 import com.cedric.Eventra.repository.ServiceProviderProfileRepository;
 import com.cedric.Eventra.repository.UserRepository;
 import com.cedric.Eventra.security.JwtUtils;
+import com.cedric.Eventra.service.factory.ResponseFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,15 +41,13 @@ public class UserServiceImpl implements UserService{
     private final ModelMapper modelMapper;
     private final BookingRepository bookingRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
+    private final ResponseFactory responseFactory;
 
     @Override
     public Response registerUser(RegistrationRequest request) {
         // Check if email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return Response.builder()
-                    .status(400)
-                    .message("Email already registered")
-                    .build();
+            return responseFactory.createBadRequestResponse("Email already registered");
         }
 
         // Set default role if not provided
@@ -106,10 +105,7 @@ public class UserServiceImpl implements UserService{
             // Save profile explicitly
             serviceProviderProfileRepository.save(profile);
         }
-        return Response.builder()
-                .status(200)
-                .message("User created successfully")
-                .build();
+        return responseFactory.createSuccessResponse("User created successfully");
     }
 
     @Override
@@ -126,15 +122,14 @@ public class UserServiceImpl implements UserService{
         String token = jwtUtils.generateToken(user.getEmail());
         // logging
         log.info("User logged in: {}", user.getEmail());
-        // Response
-        return Response.builder()
-                .status(200)
-                .message("User logged in successfully")
-                .role(user.getRole())
-                .token(token)
-                .isActive(user.getIsActive())
-                .expirationTime("6 months")
-                .build();
+        // Using the specific factory method for login success from ResponseFactory
+        return responseFactory.createLoginSuccessResponse(
+                "User logged in successfully",
+                token,
+                user.getRole(),
+                user.getIsActive(),
+                "6 months" // This could be a configurable value
+        );
     }
 
     @Override
@@ -165,11 +160,7 @@ public class UserServiceImpl implements UserService{
         log.info("Inside getOwnAccountDetails user email is {}", email);
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
-        return Response.builder()
-                .status(200)
-                .message("success")
-                .user(userDTO)
-                .build();
+        return responseFactory.createSuccessUserResponse("Account details retrieved successfully.", userDTO);
     }
 
     @Override
@@ -261,11 +252,10 @@ public class UserServiceImpl implements UserService{
                 .map(user -> modelMapper.map(user, UserDTO.class)) // Map User entity to UserDTO
                 .collect(Collectors.toList());
 
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("Service providers retrieved successfully for category: " + category.name())
-                .users(providerUserDTOs) // Use the 'users' field in your Response DTO
-                .build();
+        return responseFactory.createSuccessUsersResponse(
+                "Service providers retrieved successfully for category: " + category.name(),
+                providerUserDTOs
+        );
     }
 
 
@@ -274,24 +264,15 @@ public class UserServiceImpl implements UserService{
         List<User> serviceProviderEntities = userRepository.findByRoleAndIsActiveTrue(UserRole.SERVICE_PROVIDER);
 
         if (serviceProviderEntities.isEmpty()) {
-            return Response.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("No active service providers found.")
-                    .users(Collections.emptyList()) // Use the 'users' field in your Response DTO
-                    .build();
+            return responseFactory.createSuccessUsersResponse("No active service providers found.", Collections.emptyList());
         }
 
         List<UserDTO> serviceProviderDTOs = serviceProviderEntities.stream()
                 .map(user -> modelMapper.map(user, UserDTO.class)) // Your UserDTO includes ServiceProviderProfileDTO
                 .collect(Collectors.toList());
 
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("Active service providers retrieved successfully.")
-                .users(serviceProviderDTOs) // Use the 'users' field
-                .build();
+        return responseFactory.createSuccessUsersResponse("Active service providers retrieved successfully.", serviceProviderDTOs);
     }
-
 
     @Override
     public Response getServiceProviderById(Long providerUserId) {
@@ -299,26 +280,15 @@ public class UserServiceImpl implements UserService{
                 orElseThrow(() -> new NotFoundException("Service provider not found with ID: " + providerUserId));
 
         if (user == null) {
-            return Response.builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message("Service provider not found with ID: " + providerUserId)
-                    .build();
+            return responseFactory.createNotFoundResponse("Service provider", providerUserId);
         }
 
         if (user.getRole() != UserRole.SERVICE_PROVIDER) {
-            return Response.builder()
-                    .status(HttpStatus.NOT_FOUND.value()) // Or BAD_REQUEST if ID exists but wrong type
-                    .message("User with ID " + providerUserId + " is not a service provider.")
-                    .build();
+            return responseFactory.createNotFoundResponse("User with ID " + providerUserId + " is not a service provider.");
         }
 
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("Service provider retrieved successfully.")
-                .user(userDTO)
-                .build();
+        return responseFactory.createSuccessUserResponse("Service provider retrieved successfully.", userDTO);
     }
 
     // --- Admin Specific Method Implementations ---
@@ -330,11 +300,7 @@ public class UserServiceImpl implements UserService{
                 .map(user -> modelMapper.map(user, UserDTO.class))
                 .collect(Collectors.toList());
         log.info("Admin fetched all customers. Count: {}", customerDTOs.size());
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("All customers retrieved successfully.")
-                .users(customerDTOs)
-                .build();
+        return responseFactory.createSuccessUsersResponse("All customers retrieved successfully.", customerDTOs);
     }
 
     @Override
@@ -344,11 +310,7 @@ public class UserServiceImpl implements UserService{
                 .map(user -> modelMapper.map(user, UserDTO.class)) // UserDTO includes ServiceProviderProfileDTO
                 .collect(Collectors.toList());
         log.info("Admin fetched all service providers. Count: {}", serviceProviderDTOs.size());
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("All service providers retrieved successfully (active and inactive).")
-                .users(serviceProviderDTOs)
-                .build();
+        return responseFactory.createSuccessUsersResponse("All service providers retrieved successfully (active and inactive).", serviceProviderDTOs);
     }
 
     @Override
@@ -361,10 +323,7 @@ public class UserServiceImpl implements UserService{
         User currentUser = getCurrentLoggedInUser();
         if (currentUser.getId().equals(userId) && currentUser.getRole() == UserRole.ADMIN) {
             log.warn("Admin user {} attempted to delete themselves via admin endpoint.", currentUser.getEmail());
-            return Response.builder()
-                    .status(HttpStatus.FORBIDDEN.value())
-                    .message("Admin cannot delete their own account using this endpoint.")
-                    .build();
+            return responseFactory.createForbiddenResponse("Admin cannot delete their own account using this endpoint.");
         }
 
         // Cascade delete for service provider profile if it exists
@@ -375,10 +334,7 @@ public class UserServiceImpl implements UserService{
 
         userRepository.delete(userToDelete);
         log.info("Admin deleted user with ID: {}. User email: {}", userId, userToDelete.getEmail());
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User with ID " + userId + " deleted successfully by admin.")
-                .build();
+        return responseFactory.createSuccessResponse("User with ID " + userId + " deleted successfully by admin.");
     }
 
 
@@ -389,21 +345,13 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
         if (user.getIsActive()) {
-            return Response.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("User with ID " + userId + " is already active.")
-                    .user(modelMapper.map(user, UserDTO.class))
-                    .build();
+            return responseFactory.createSuccessUserResponse("User with ID " + userId + " is already active.", modelMapper.map(user, UserDTO.class));
         }
 
         user.setIsActive(true);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         log.info("Admin activated user with ID: {}. User email: {}", userId, user.getEmail());
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User with ID " + userId + " activated successfully by admin.")
-                .user(modelMapper.map(user, UserDTO.class))
-                .build();
+        return responseFactory.createSuccessUserResponse("User with ID " + userId + " activated successfully by admin.", modelMapper.map(savedUser, UserDTO.class));
     }
 
     @Override
@@ -416,28 +364,17 @@ public class UserServiceImpl implements UserService{
         User currentUser = getCurrentLoggedInUser();
         if (currentUser.getId().equals(userId) && currentUser.getRole() == UserRole.ADMIN) {
             log.warn("Admin user {} attempted to deactivate themselves.", currentUser.getEmail());
-            return Response.builder()
-                    .status(HttpStatus.FORBIDDEN.value())
-                    .message("Admin cannot deactivate their own account.")
-                    .build();
+            return responseFactory.createForbiddenResponse("Admin cannot deactivate their own account.");
         }
 
         if (!user.getIsActive()) {
-            return Response.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("User with ID " + userId + " is already inactive.")
-                    .user(modelMapper.map(user, UserDTO.class))
-                    .build();
+            return responseFactory.createSuccessUserResponse("User with ID " + userId + " is already inactive.", modelMapper.map(user, UserDTO.class));
         }
 
         user.setIsActive(false);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         log.info("Admin deactivated user with ID: {}. User email: {}", userId, user.getEmail());
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User with ID " + userId + " deactivated successfully by admin.")
-                .user(modelMapper.map(user, UserDTO.class))
-                .build();
+        return responseFactory.createSuccessUserResponse("User with ID " + userId + " deactivated successfully by admin.", modelMapper.map(savedUser, UserDTO.class));
     }
 
     @Override
@@ -447,22 +384,14 @@ public class UserServiceImpl implements UserService{
 
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         log.info("Admin retrieved user details for ID: {}", userId);
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User details retrieved successfully.")
-                .user(userDTO)
-                .build();
+        return responseFactory.createSuccessUserResponse("User details retrieved successfully.", userDTO);
     }
 
     // ------------- NEW METHOD IMPLEMENTATION -------------
     @Override
     public Response searchServiceProvidersByName(String serviceName) {
         if (serviceName == null || serviceName.trim().isEmpty()) {
-            return Response.builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Service name cannot be empty.")
-                    .users(Collections.emptyList())
-                    .build();
+            return responseFactory.createBadRequestResponse("Service name for search cannot be empty.");
         }
 
         log.info("Searching for service providers with service name containing: {}", serviceName);
@@ -472,11 +401,10 @@ public class UserServiceImpl implements UserService{
                 .findByServiceNameContainingIgnoreCaseAndUserIsActiveTrueAndUserRoleServiceProvider(serviceName);
 
         if (profiles.isEmpty()) {
-            return Response.builder()
-                    .status(HttpStatus.OK.value()) // Or NOT_FOUND if preferred for empty search results
-                    .message("No active service providers found matching the name: " + serviceName)
-                    .users(Collections.emptyList())
-                    .build();
+            return responseFactory.createSuccessUsersResponse(
+                    "No active service providers found matching the name: " + serviceName,
+                    Collections.emptyList()
+            );
         }
 
         // Map the User associated with each profile to UserDTO
@@ -487,11 +415,10 @@ public class UserServiceImpl implements UserService{
                 .map(user -> modelMapper.map(user, UserDTO.class)) // Map User entity to UserDTO
                 .collect(Collectors.toList());
 
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("Service providers retrieved successfully for service name: " + serviceName)
-                .users(providerUserDTOs)
-                .build();
+        return responseFactory.createSuccessUsersResponse(
+                "Service providers retrieved successfully for service name: " + serviceName,
+                providerUserDTOs
+        );
     }
 }
 
