@@ -1,10 +1,13 @@
 package com.cedric.Eventra.controller;
 
+
 import com.cedric.Eventra.dto.BookingDTO;
 import com.cedric.Eventra.dto.Response;
 import com.cedric.Eventra.service.BookingService;
+import com.cedric.Eventra.service.booking.command.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final ApplicationContext applicationContext;
 
     /**
      * Endpoint for a customer to create a new booking request.
@@ -28,7 +32,8 @@ public class BookingController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")// Any authenticated user can create a booking
     public ResponseEntity<Response> createBooking(@Valid @RequestBody BookingDTO bookingDetailsDTO) {
-        Response serviceResponse = bookingService.createBooking(bookingDetailsDTO);
+        CreateBookingCommand command = applicationContext.getBean(CreateBookingCommand.class).init(bookingDetailsDTO);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -41,7 +46,8 @@ public class BookingController {
     @PutMapping("/{bookingReference}/provider-accept")
     @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
     public ResponseEntity<Response> providerAcceptBooking(@PathVariable String bookingReference) {
-        Response serviceResponse = bookingService.providerAcceptBooking(bookingReference);
+        AcceptBookingCommand command = applicationContext.getBean(AcceptBookingCommand.class).init(bookingReference);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -54,7 +60,8 @@ public class BookingController {
     @PutMapping("/{bookingReference}/provider-reject")
     @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
     public ResponseEntity<Response> providerRejectBooking(@PathVariable String bookingReference) {
-        Response serviceResponse = bookingService.providerRejectBooking(bookingReference);
+        RejectBookingCommand command = applicationContext.getBean(RejectBookingCommand.class).init(bookingReference);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -67,7 +74,8 @@ public class BookingController {
     @PutMapping("/{bookingReference}/customer-cancel")
     @PreAuthorize("isAuthenticated()") // Customer must be authenticated
     public ResponseEntity<Response> customerCancelBooking(@PathVariable String bookingReference) {
-        Response serviceResponse = bookingService.customerCancelBooking(bookingReference);
+        CustomerCancelBookingCommand command = applicationContext.getBean(CustomerCancelBookingCommand.class).init(bookingReference);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -82,7 +90,8 @@ public class BookingController {
     @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
     public ResponseEntity<Response> providerCancelBooking(@PathVariable String bookingReference,
                                                           @RequestParam(required = false) String reason) {
-        Response serviceResponse = bookingService.providerCancelBooking(bookingReference, reason);
+        ProviderCancelBookingCommand command = applicationContext.getBean(ProviderCancelBookingCommand.class).init(bookingReference, reason);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -97,7 +106,8 @@ public class BookingController {
     @PutMapping("/{bookingReference}/confirm-payment")
     // @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SYSTEM')") // Example: Or just isAuthenticated() if a user action after payment
     public ResponseEntity<Response> confirmBookingPayment(@PathVariable String bookingReference) {
-        Response serviceResponse = bookingService.confirmBookingPayment(bookingReference);
+        ConfirmBookingPaymentCommand command = applicationContext.getBean(ConfirmBookingPaymentCommand.class).init(bookingReference);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
@@ -110,7 +120,8 @@ public class BookingController {
     @PutMapping("/{bookingReference}/complete")
     @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
     public ResponseEntity<Response> markBookingAsCompleted(@PathVariable String bookingReference) {
-        Response serviceResponse = bookingService.markBookingAsCompleted(bookingReference);
+        MarkBookingAsCompletedCommand command = applicationContext.getBean(MarkBookingAsCompletedCommand.class).init(bookingReference);
+        Response serviceResponse = command.execute();
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
 
