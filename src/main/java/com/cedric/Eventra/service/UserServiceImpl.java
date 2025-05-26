@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService{
         }
 
         // Set default role if not provided
+        // need to implement for ADMIN Role
         UserRole role = request.getRole() != null ? request.getRole() : UserRole.CUSTOMER;
 
         // Create base user

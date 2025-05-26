@@ -7,12 +7,14 @@ import com.cedric.Eventra.entity.OfferedService;
 import com.cedric.Eventra.entity.User;
 import com.cedric.Eventra.enums.BookingStatus;
 import com.cedric.Eventra.enums.UserRole;
+import com.cedric.Eventra.events.*;
 import com.cedric.Eventra.exception.NotFoundException;
 import com.cedric.Eventra.repository.BookingRepository;
 import com.cedric.Eventra.repository.OfferedServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +32,10 @@ public class BookingServiceImpl implements BookingService{
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final OfferedServiceRepository offeredServiceRepository;
-    private final NotificationService notificationService;
+    //private final NotificationService notificationService;
     private final ModelMapper modelMapper;
     private final BookingCodeGenerator bookingCodeGenerator;
+    private final ApplicationEventPublisher eventPublisher; // Added
 
     @Override
     @Transactional
@@ -90,9 +93,11 @@ public class BookingServiceImpl implements BookingService{
 
         // Send notification to provider
         try {
-            notificationService.sendNewBookingRequestNotification(savedBooking);
+            //notificationService.sendNewBookingRequestNotification(savedBooking);
+            eventPublisher.publishEvent(new BookingCreatedEvent(this, savedBooking)); // ADDED
+            log.info("Published BookingCreatedEvent for booking ref {}", savedBooking.getBookingReference());
         } catch (Exception e) {
-            log.error("Failed to send new booking request notification for booking ref {}: {}", savedBooking.getBookingReference(), e.getMessage());
+            log.error("Failed to publish BookingCreatedEvent for booking ref {}: {}", savedBooking.getBookingReference(), e.getMessage());
             // Continue even if notification fails, booking is already made.
         }
 
@@ -138,9 +143,11 @@ public class BookingServiceImpl implements BookingService{
         log.info("Booking with reference: {} has been accepted by provider: {}", bookingReference, provider.getEmail());
 
         try{
-            notificationService.sendBookingAcceptedNotification(updatedBooking);
+            //notificationService.sendBookingAcceptedNotification(updatedBooking);
+            eventPublisher.publishEvent(new BookingAcceptedEvent(this, updatedBooking)); // ADDED
+            log.info("Published BookingAcceptedEvent for booking ref {}", updatedBooking.getBookingReference());
         } catch (Exception e) {
-            log.error("Failed to send booking accepted notification for booking ref {}: {}", bookingReference, e.getMessage());
+            log.error("Failed to publish BookingAcceptedEvent for booking ref {}: {}", bookingReference, e.getMessage());
         }
 
         return Response.builder()
@@ -183,11 +190,14 @@ public class BookingServiceImpl implements BookingService{
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Booking with reference: {} has been rejected by provider: {}", bookingReference, provider.getEmail());
 
-        try{
-            notificationService.sendBookingRejectedNotification(updatedBooking);
+        try {
+            // notificationService.sendBookingRejectedNotification(updatedBooking); // REMOVED
+            eventPublisher.publishEvent(new BookingRejectedEvent(this, updatedBooking)); // ADDED
+            log.info("Published BookingRejectedEvent for booking ref {}", updatedBooking.getBookingReference());
         } catch (Exception e) {
-            log.error("Failed to send booking rejected notification for booking ref {}: {}", bookingReference, e.getMessage());
+            log.error("Failed to publish BookingRejectedEvent for booking ref {}: {}", bookingReference, e.getMessage());
         }
+
 
         return Response.builder()
                 .status(HttpStatus.OK.value())
@@ -238,6 +248,13 @@ public class BookingServiceImpl implements BookingService{
             log.error("Failed to send booking cancelled notification for booking ref {}: {}", bookingReference, e.getMessage());
         }
          */
+        try {
+            // notificationService.sendBookingCancelledByCustomerNotification(updatedBooking);
+            eventPublisher.publishEvent(new BookingCancelledByCustomerEvent(this, updatedBooking)); // ADDED
+            log.info("Published BookingCancelledByCustomerEvent for booking ref {}", updatedBooking.getBookingReference());
+        } catch (Exception e) {
+            log.error("Failed to publish BookingCancelledByCustomerEvent for booking ref {}: {}", bookingReference, e.getMessage());
+        }
 
         return Response.builder()
                 .status(HttpStatus.OK.value())
@@ -269,13 +286,12 @@ public class BookingServiceImpl implements BookingService{
                     .build();
         }
 
-        // Business rule: Provider can cancel if ACCEPTED_AWAITING_PAYMENT or BOOKED or Even Confimed
+
         if(booking.getStatus() == BookingStatus.COMPLETED ||
-                booking.getStatus() == BookingStatus.REJECTED ||
-                booking.getStatus() == BookingStatus.CONFIRMED){
+                booking.getStatus() == BookingStatus.REJECTED ){
             return Response.builder()
                     .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Booking can only be cancelled if it's in ACCEPTED_AWAITING_PAYMENT or BOOKED state. Current status: " + booking.getStatus())
+                    .message("Booking cannot be cancelled by provider if already COMPLETED or REJECTED. Current status: " + booking.getStatus())
                     .build();
         }
         log.info("Provider {} cancelling booking ref {} with reason: {}", provider.getEmail(), bookingReference, reason);
@@ -291,6 +307,13 @@ public class BookingServiceImpl implements BookingService{
             log.error("Failed to send booking cancelled notification for booking ref {}: {}", bookingReference, e.getMessage());
         }
         */
+        try {
+            // Potentially: notificationService.sendBookingCancelledByProviderNotification(updatedBooking, reason);
+            eventPublisher.publishEvent(new BookingCancelledByProviderEvent(this, updatedBooking, reason)); // ADDED
+            log.info("Published BookingCancelledByProviderEvent for booking ref {}", updatedBooking.getBookingReference());
+        } catch (Exception e) {
+            log.error("Failed to publish BookingCancelledByProviderEvent for booking ref {}: {}", bookingReference, e.getMessage());
+        }
 
         return Response.builder()
                 .status(HttpStatus.OK.value())
@@ -318,15 +341,19 @@ public class BookingServiceImpl implements BookingService{
         }
         booking.setStatus(BookingStatus.CONFIRMED);
         Booking updatedBooking = bookingRepository.save(booking);
-        log.info("Booking with reference: {} has been confirmed by provider: {}", bookingReference, booking.getOfferedService().getProvider().getEmail());
-        try{
-            notificationService.sendBookingConfirmedNotification(updatedBooking);
+        // Log actor if available, e.g. admin or system user. For now, using provider from booking context.
+        log.info("Payment confirmed for booking reference: {}. Status set to CONFIRMED.", bookingReference);
+
+        try {
+            // notificationService.sendBookingConfirmedNotification(updatedBooking); // REMOVED
+            eventPublisher.publishEvent(new BookingConfirmedEvent(this, updatedBooking)); // ADDED
+            log.info("Published BookingConfirmedEvent for booking ref {}", updatedBooking.getBookingReference());
         } catch (Exception e) {
-            log.error("Failed to send booking confirmed notification for booking ref {}: {}", bookingReference, e.getMessage());
+            log.error("Failed to publish BookingConfirmedEvent for booking ref {}: {}", bookingReference, e.getMessage());
         }
         return Response.builder()
                 .status(HttpStatus.OK.value())
-                .message("Booking request confirmed by provider. Booking is now in now CONFIRMED.")
+                .message("Booking payment confirmed. Booking is now CONFIRMED.")
                 .booking(modelMapper.map(updatedBooking, BookingDTO.class))
                 .build();
     }
@@ -335,14 +362,24 @@ public class BookingServiceImpl implements BookingService{
     @Transactional
     public Response markBookingAsCompleted(String bookingReference) {
 
+        User provider = userService.getCurrentLoggedInUser(); // Assuming provider marks it complete
         Booking booking = bookingRepository.findByBookingReference(bookingReference)
                 .orElseThrow(() -> new NotFoundException("Booking not found with reference: " + bookingReference));
+
         if (booking == null) {
             return Response.builder()
                     .status(HttpStatus.NOT_FOUND.value())
                     .message("Booking not found with reference: " + bookingReference)
                     .build();
         }
+        // Authorization: Ensure the current user is the provider for this booking
+        if (!booking.getOfferedService().getProvider().getId().equals(provider.getId())) {
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("You are not authorized to mark this booking as completed.")
+                    .build();
+        }
+
         if (booking.getStatus() != BookingStatus.CONFIRMED) {
             return Response.builder()
                     .status(HttpStatus.BAD_REQUEST.value())
@@ -360,6 +397,15 @@ public class BookingServiceImpl implements BookingService{
             log.error("Failed to send booking completed notification for booking ref {}: {}", bookingReference, e.getMessage());
         }
          */
+
+        try {
+            // Potentially: notificationService.sendBookingCompletedNotification(updatedBooking);
+            eventPublisher.publishEvent(new BookingCompletedEvent(this, updatedBooking)); // ADDED
+            log.info("Published BookingCompletedEvent for booking ref {}", updatedBooking.getBookingReference());
+        } catch (Exception e) {
+            log.error("Failed to publish BookingCompletedEvent for booking ref {}: {}", bookingReference, e.getMessage());
+        }
+
         return Response.builder()
                 .status(HttpStatus.OK.value())
                 .message("Booking request marked as completed.")
