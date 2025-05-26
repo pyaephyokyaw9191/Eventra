@@ -82,4 +82,44 @@ public class UserController {
         Response serviceResponse = userService.getServiceProviderById(providerUserId);
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }
+
+    // --- Admin Specific Endpoints ---
+
+    @GetMapping("/admin/customers")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> getAllCustomersAdmin() {
+        return ResponseEntity.ok(userService.getAllCustomersAdmin());
+    }
+
+    @GetMapping("/admin/service-providers/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> getAllServiceProvidersAdmin() {
+        // This fetches all service providers, regardless of their isActive status
+        return ResponseEntity.ok(userService.getAllServiceProvidersAdmin());
+    }
+
+    @GetMapping("/admin/user/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> getUserByIdAdmin(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getUserByIdAdmin(userId));
+    }
+
+    @DeleteMapping("/admin/user/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> deleteUserByIdAdmin(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.deleteUserByIdAdmin(userId));
+    }
+
+    @PutMapping("/admin/user/{userId}/activate")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> activateUserAdmin(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.activateUserAdmin(userId));
+    }
+
+    @PutMapping("/admin/user/{userId}/deactivate")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Response> deactivateUserAdmin(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.deactivateUserAdmin(userId));
+    }
 }
+

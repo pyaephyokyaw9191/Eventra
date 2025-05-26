@@ -320,4 +320,138 @@ public class UserServiceImpl implements UserService{
                 .user(userDTO)
                 .build();
     }
+
+    // --- Admin Specific Method Implementations ---
+
+    @Override
+    public Response getAllCustomersAdmin() {
+        List<User> customerEntities = userRepository.findByRole(UserRole.CUSTOMER);
+        List<UserDTO> customerDTOs = customerEntities.stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+        log.info("Admin fetched all customers. Count: {}", customerDTOs.size());
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("All customers retrieved successfully.")
+                .users(customerDTOs)
+                .build();
+    }
+
+    @Override
+    public Response getAllServiceProvidersAdmin() {
+        List<User> serviceProviderEntities = userRepository.findByRole(UserRole.SERVICE_PROVIDER);
+        List<UserDTO> serviceProviderDTOs = serviceProviderEntities.stream()
+                .map(user -> modelMapper.map(user, UserDTO.class)) // UserDTO includes ServiceProviderProfileDTO
+                .collect(Collectors.toList());
+        log.info("Admin fetched all service providers. Count: {}", serviceProviderDTOs.size());
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("All service providers retrieved successfully (active and inactive).")
+                .users(serviceProviderDTOs)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Response deleteUserByIdAdmin(Long userId) {
+        User userToDelete = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        // Prevent admin from deleting themselves through this generic endpoint
+        User currentUser = getCurrentLoggedInUser();
+        if (currentUser.getId().equals(userId) && currentUser.getRole() == UserRole.ADMIN) {
+            log.warn("Admin user {} attempted to delete themselves via admin endpoint.", currentUser.getEmail());
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Admin cannot delete their own account using this endpoint.")
+                    .build();
+        }
+
+        // Cascade delete for service provider profile if it exists
+        if (userToDelete.getRole() == UserRole.SERVICE_PROVIDER && userToDelete.getServiceProviderProfile() != null) {
+            serviceProviderProfileRepository.delete(userToDelete.getServiceProviderProfile());
+        }
+        // Add any other cleanup logic here (e.g., related bookings, reviews by this user)
+
+        userRepository.delete(userToDelete);
+        log.info("Admin deleted user with ID: {}. User email: {}", userId, userToDelete.getEmail());
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("User with ID " + userId + " deleted successfully by admin.")
+                .build();
+    }
+
+
+    @Override
+    @Transactional
+    public Response activateUserAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        if (user.getIsActive()) {
+            return Response.builder()
+                    .status(HttpStatus.OK.value())
+                    .message("User with ID " + userId + " is already active.")
+                    .user(modelMapper.map(user, UserDTO.class))
+                    .build();
+        }
+
+        user.setIsActive(true);
+        userRepository.save(user);
+        log.info("Admin activated user with ID: {}. User email: {}", userId, user.getEmail());
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("User with ID " + userId + " activated successfully by admin.")
+                .user(modelMapper.map(user, UserDTO.class))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Response deactivateUserAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        // Prevent admin from deactivating themselves
+        User currentUser = getCurrentLoggedInUser();
+        if (currentUser.getId().equals(userId) && currentUser.getRole() == UserRole.ADMIN) {
+            log.warn("Admin user {} attempted to deactivate themselves.", currentUser.getEmail());
+            return Response.builder()
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .message("Admin cannot deactivate their own account.")
+                    .build();
+        }
+
+        if (!user.getIsActive()) {
+            return Response.builder()
+                    .status(HttpStatus.OK.value())
+                    .message("User with ID " + userId + " is already inactive.")
+                    .user(modelMapper.map(user, UserDTO.class))
+                    .build();
+        }
+
+        user.setIsActive(false);
+        userRepository.save(user);
+        log.info("Admin deactivated user with ID: {}. User email: {}", userId, user.getEmail());
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("User with ID " + userId + " deactivated successfully by admin.")
+                .user(modelMapper.map(user, UserDTO.class))
+                .build();
+    }
+
+    @Override
+    public Response getUserByIdAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        log.info("Admin retrieved user details for ID: {}", userId);
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("User details retrieved successfully.")
+                .user(userDTO)
+                .build();
+    }
 }
+

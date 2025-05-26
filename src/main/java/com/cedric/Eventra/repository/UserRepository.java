@@ -11,7 +11,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    List<User> findByRoleAndIsActiveTrue(UserRole role); // Or findByRoleAndIsActive(UserRole role, Boolean isActive)
+    List<User> findByRoleAndIsActiveTrue(UserRole role); //
+    // Or findByRoleAndIsActive(UserRole role, Boolean isActive)
     // if you also want to fetch inactive ones sometimes.
     // For "get all service providers" for display, active is usually what you want.
+
+    // Added method to fetch users by role (both active and inactive)
+    List<User> findByRole(UserRole role);
+
 }
