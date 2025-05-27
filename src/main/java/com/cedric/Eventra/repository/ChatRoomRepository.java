@@ -20,10 +20,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     // Fetches rooms for a user, ordered by most recent activity
     List<ChatRoom> findByParticipant1OrParticipant2OrderByLastMessageAtDesc(User participant1, User participant2);
-    // A simpler version if you query by just one participant and want to check both fields:
-    // @Query("SELECT cr FROM ChatRoom cr WHERE cr.participant1 = :user OR cr.participant2 = :user ORDER BY cr.lastMessageAt DESC")
-    // List<ChatRoom> findChatRoomsInvolvingUser(@Param("user") User user);
 
-    // If you have a booking link and need to find a chat room by it
+    // If have a booking link and need to find a chat room by it
     Optional<ChatRoom> findByBookingId(Long bookingId);
 }

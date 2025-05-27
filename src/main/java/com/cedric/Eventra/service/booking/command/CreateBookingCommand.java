@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component; // Make command a Spring bean
 
-@Component // If you want Spring to manage it, or use a factory
+@Component
 @RequiredArgsConstructor // If using constructor injection for all final fields
 @Slf4j
 public class CreateBookingCommand implements BookingCommand {

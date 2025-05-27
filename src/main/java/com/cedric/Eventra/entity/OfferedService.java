@@ -30,7 +30,7 @@ public class OfferedService {
     @JoinColumn(name="provider_id")
     private User provider;
 
-    private String location;       // Optional, for filtering
+    private String location;
 
     @Column(name = "image_filename") // New field to store the image filename
     private String imageFilename;

@@ -18,5 +18,5 @@ public class ChatRoomDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastMessageAt; // Useful for sorting rooms
     // The actual last message content can be fetched when the room is opened,
-    // or you can add it back here later if needed for previews.
+    // can add it back here later if needed for previews.or y
 }

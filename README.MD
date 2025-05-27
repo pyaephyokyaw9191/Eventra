@@ -86,6 +86,7 @@ Other important locations:
 
 2.  **Database Configuration:**
     * Create a MySQL database named `eventra` (or as configured in `application.properties`).
+    * Currently, database property is set up to `ddl-auto=create-drop` for testing and data initialization, if without data initialization, property can be set up `ddl-auto = update`. 
     * Update the database URL, username, and password in `src/main/resources/application.properties` if different from the defaults:
         ```properties
         spring.datasource.url = jdbc:mysql://localhost:3306/eventra
@@ -137,13 +138,13 @@ Key API groups include:
 
 ## 🌱 Data Initialization
 
-* The `DataInitializer` class runs on application startup if no users are found in the database.
+* The `DataInitializer` class runs on application startup if no users are found in the database. 
 * It populates the database with:
     * 3 Admin users.
     * 100 Service Provider users, each with a profile and 3 offered services.
     * 100 Customer users.
     * Randomized reviews for the service providers.
-* **Important:** For image initialization to work, ensure you have the following default images in the `src/main/resources/Initialize-images/` subdirectories:
+* **Important:** For image initialization without placeholder pictures, we need to have the following default images in the `src/main/resources/Initialize-images/` subdirectories:
     * `profile-pictures/profile-picture.png`
     * `cover-photos/cover-photo.jpg`
     * `service-images/service-image.jpg`

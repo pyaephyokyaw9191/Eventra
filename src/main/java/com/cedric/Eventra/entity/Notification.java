@@ -33,8 +33,8 @@ public class Notification {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    @Column(name = "booking_reference") // Good for DB naming convention
-    private String bookingReference; // Optional: link to a booking
+    @Column(name = "booking_reference")
+    private String bookingReference;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "notification_type", nullable = false)

@@ -10,9 +10,6 @@ public class BookingCancelledByProviderContentStrategy implements NotificationCo
 
     private String reason; // To hold reason if passed contextually
 
-    // If you pass reason through a custom event that strategy is aware of.
-    // This is a bit of a workaround if the strategy interface is generic.
-    // A better way might be to pass a context object to generateSubject/Body.
     public void setContext(BookingCancelledByProviderEvent event) {
         this.reason = event.getReason();
     }

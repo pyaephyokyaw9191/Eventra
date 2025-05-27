@@ -44,9 +44,9 @@ public class ServiceProviderProfile {
     private String location;
     private String postcode;
 
-    @Column(name = "profile_picture_filename") // Changed from profilePictureUrl
+    @Column(name = "profile_picture_filename")
     private String profilePictureFilename;
 
-    @Column(name = "cover_photo_filename")   // Changed from coverPhotoUrl
+    @Column(name = "cover_photo_filename")
     private String coverPhotoFilename;
 }
