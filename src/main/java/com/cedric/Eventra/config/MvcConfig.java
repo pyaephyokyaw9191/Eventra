@@ -51,7 +51,7 @@ public class MvcConfig implements WebMvcConfigurer {
         log.info("Serving cover photos from: {} mapped to URL /uploads/cover-photos/**", coverPhotosLocation);
     }
 
-    // Your existing global CORS configurer bean
+    // existing global CORS configurer bean
     @Bean
     public WebMvcConfigurer globalCorsConfigurer() {
         return new WebMvcConfigurer() {
@@ -65,8 +65,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         .allowCredentials(true)
                         .maxAge(3600);
 
-                // WebSocket Handshake specific if different (already in your other CorsConfig, this one is more general)
-                // Or if you have one single CorsConfig, ensure /ws/** is handled correctly
+                // WebSocket Handshake specific if different (already in other CorsConfig, this one is more general)
+                // Or if have one single CorsConfig, ensure /ws/** is handled correctly
                 registry.addMapping("/ws/**")
                         .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:63342")
                         .allowedMethods("GET", "POST", "OPTIONS") // SockJS handshake might need these

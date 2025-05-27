@@ -56,12 +56,6 @@ public class ChatController {
     @GetMapping("/rooms/{chatRoomId}/messages")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> getChatMessagesForRoom(@PathVariable Long chatRoomId) {
-        // In the simplified service, we removed Pageable.
-        // If you re-add Pageable:
-        // @RequestParam(defaultValue = "0") int page,
-        // @RequestParam(defaultValue = "20") int size
-        // Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
-        // Response serviceResponse = chatService.getChatMessages(chatRoomId, pageable);
         Response serviceResponse = chatService.getChatMessagesForRoom(chatRoomId);
         return new ResponseEntity<>(serviceResponse, HttpStatus.valueOf(serviceResponse.getStatus()));
     }

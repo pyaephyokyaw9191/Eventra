@@ -18,7 +18,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 // @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    // For secure WebSockets, you would inject and use this:
+    // For secure WebSockets, inject and use this:
     private final JwtStompAuthChannelInterceptor jwtStompAuthChannelInterceptor;
 
     @Override
@@ -30,13 +30,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws") // Your WebSocket handshake endpoint
-                // Replace with your actual frontend origin(s) for development and production
+        registry.addEndpoint("/ws") //  WebSocket handshake endpoint
+                // Replace with  actual frontend origin(s) for development and production
                 .setAllowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:63342", "YOUR_FRONTEND_DOMAIN_HERE")
                 .withSockJS(); // For fallback compatibility
     }
 
-    // To enable JWT authentication for WebSockets (RECOMMENDED for more than basic demo)
+    // To enable JWT authentication for WebSockets
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(jwtStompAuthChannelInterceptor);

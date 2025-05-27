@@ -31,12 +31,6 @@ public class OfferedServiceController {
     @PutMapping("/update") // PROBLEM 1: Needs {serviceId} in path. Service expects (Long, DTO)
     @PreAuthorize("hasAuthority('SERVICE_PROVIDER')")
     public ResponseEntity<Response> updateService(@Valid @RequestBody OfferedServiceDTO offeredServiceDTO) {
-        // This will fail because your service method updateOfferedService(Long serviceId, OfferedServiceDTO dto)
-        // needs the serviceId as a separate parameter, typically from the path.
-        // You need to get offeredServiceDTO.getId() and pass it as the first argument.
-        // And the endpoint should be like PUT /api/services/{serviceId}
-        // Response serviceResponse = offeredServiceService.updateOfferedService(offeredServiceDTO); // OLD
-        // Corrected call based on common service signature:
         if (offeredServiceDTO.getId() == null) {
             Response errorResponse = Response.builder()
                     .status(HttpStatus.BAD_REQUEST.value())
