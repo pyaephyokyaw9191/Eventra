@@ -21,12 +21,10 @@ public class ReviewDTO {
     private Long id;
     private Float rating;
     private String comment;
-
-    private Long reviewerId;
-    private String reviewerName;
-
-    private Long servicerProviderId;
-    private String serviceName;
-
+    private UserDTO reviewerInfo;
+    private Long reviewedProviderProfileId;
+    private String reviewedProviderProfileName;
+    private Long offeredServiceId;
+    private String serviceNameReviewed;
     private LocalDateTime createdAt;
 }

@@ -1,4 +1,5 @@
 package com.cedric.Eventra.dto;
+import com.cedric.Eventra.enums.ServiceCategory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,14 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceProviderProfileDTO {
 //    private Long userId;
-    private Float rating;
     private String location;
     private String postcode;
-    private String profilePictureUrl;
-    private String coverPhotoUrl;
+    private String profilePictureUrl; // Will hold the full URL
+    private String coverPhotoUrl;   // Will hold the full URL
+    private ServiceCategory serviceCategory;
+    // add ons
+    private String serviceName;
+    private String abn;
 
     // From user
     private String userEmail;

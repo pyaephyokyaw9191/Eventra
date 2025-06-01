@@ -31,8 +31,4 @@ public class AuthController {
     public ResponseEntity<Response> loginUser(@RequestBody @Valid LoginRequest request){
         return ResponseEntity.ok(userService.loginUser(request));
     }
-
-    // http://localhost:8080/swagger-ui.html
-    // for swagger
-
 }

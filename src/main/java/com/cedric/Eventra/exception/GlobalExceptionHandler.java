@@ -5,9 +5,53 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException {
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Response> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(ex.getMessage())
+                // No specific data object for this error in your current Response DTO
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles exceptions due to bad or malformed client requests.
+     */
+    @ExceptionHandler(FileStorageException.class) // Newly added handler
+    public ResponseEntity<Response> handleFileStroageException(FileStorageException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles exceptions due to bad or malformed client requests.
+     */
+    @ExceptionHandler(BadRequestException.class) // Newly added handler
+    public ResponseEntity<Response> handleBadRequestException(BadRequestException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Response> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
+        Response errorResponse = Response.builder()
+                .status(HttpStatus.FORBIDDEN.value()) // Or HttpStatus.UNAUTHORIZED based on your specific use
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> handleAllUnknownExceptions(Exception ex){

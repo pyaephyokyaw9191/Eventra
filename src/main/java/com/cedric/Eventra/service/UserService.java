@@ -5,6 +5,7 @@ import com.cedric.Eventra.dto.RegistrationRequest;
 import com.cedric.Eventra.dto.Response;
 import com.cedric.Eventra.dto.UserDTO;
 import com.cedric.Eventra.entity.User;
+import com.cedric.Eventra.enums.ServiceCategory;
 
 public interface UserService {
 
@@ -23,4 +24,23 @@ public interface UserService {
     Response deleteOwnAccount();
 
     Response getMyBookingHistory();
+
+    Response getServiceProvidersByCategory(ServiceCategory category);
+
+    Response getAllActiveServiceProviders();
+
+    Response getServiceProviderById(Long providerUserId);
+
+    User getUserByEmail(String email);
+
+    // New method for searching by service name
+    Response searchServiceProvidersByName(String serviceName);
+
+    // Admin specific methods
+    Response getAllCustomersAdmin();
+    Response getAllServiceProvidersAdmin();
+    Response deleteUserByIdAdmin(Long userId);
+    Response activateUserAdmin(Long userId);
+    Response deactivateUserAdmin(Long userId);
+    Response getUserByIdAdmin(Long userId);
 }

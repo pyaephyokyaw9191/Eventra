@@ -1,5 +1,6 @@
 package com.cedric.Eventra.entity;
 
+import com.cedric.Eventra.enums.ServiceCategory;
 import com.cedric.Eventra.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -32,11 +33,20 @@ public class ServiceProviderProfile {
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @Transient
     private Float averageRating;
+
+    @Enumerated(EnumType.STRING)
+    private ServiceCategory serviceCategory;
+
+    private String serviceName;
+    private String ABN;
 
     private String location;
     private String postcode;
-    private String profilePictureUrl;
-    private String coverPhotoUrl;
+
+    @Column(name = "profile_picture_filename")
+    private String profilePictureFilename;
+
+    @Column(name = "cover_photo_filename")
+    private String coverPhotoFilename;
 }

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<h1>Chat Test</h1>
+<div>
+    <label for="token">JWT Token (with "Bearer "):</label>
+    <input type="text" id="token" placeholder="Bearer your_token_here" style="width: 300px;"><br>
+    <label for="chatRoomId">Chat Room ID:</label>
+    <input type="text" id="chatRoomId" value="1"><br> <label for="messageInput">Message:</label>
+    <input type="text" id="messageInput" placeholder="Enter message">
+    <button onclick="connectAndSubscribe()">Connect & Subscribe</button>
+    <button onclick="sendMessage()">Send Message</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+<div id="messages"></div>
+
+<script>
+    let stompClient = null;
+    const chatRoomIdInput = document.getElementById('chatRoomId');
+    const messageInput = document.getElementById('messageInput');
+    const messagesDiv = document.getElementById('messages');
+    const tokenInput = document.getElementById('token');
+
+    function logMessage(message) {
+        const p = document.createElement('p');
+        p.textContent = message;
+        messagesDiv.appendChild(p);
+        console.log(message);
+    }
+
+    function connectAndSubscribe() {
+        if (stompClient !== null && stompClient.active) {
+            logMessage('Already connected. Please disconnect first if you want to reconnect.');
+            return;
+        }
+
+        const jwtTokenWithBearer = tokenInput.value;
+        let tokenForHeader = '';
+
+        if (jwtTokenWithBearer && jwtTokenWithBearer.startsWith('Bearer ')) {
+            tokenForHeader = jwtTokenWithBearer;
+        } else if (jwtTokenWithBearer) {
+            // If "Bearer " prefix is missing, add it, as interceptor expects it.
+            tokenForHeader = `Bearer ${jwtTokenWithBearer}`;
+            logMessage("Note: Added 'Bearer ' prefix to the token.");
+        } else {
+            logMessage('Error: JWT Token is required to connect.');
+            alert('JWT Token is required!');
+            return;
+        }
+
+        // StompJs v7+ uses a configuration object for the client
+        stompClient = new StompJs.Client({
+            webSocketFactory: function () {
+                // Ensure SockJS URL matches your Spring Boot endpoint
+                return new SockJS('http://localhost:9090/ws'); // Adjust port if needed
+            },
+            connectHeaders: {
+                'Authorization': tokenForHeader // Pass the full "Bearer <token>"
+            },
+            debug: function (str) {
+                logMessage('STOMP DEBUG: ' + str);
+            },
+            reconnectDelay: 5000, // Try to reconnect every 5 seconds
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: function (frame) {
+                logMessage('STOMP Connected: ' + frame);
+                // Automatically subscribe after connecting
+                subscribeToRoomInternal();
+            },
+            onStompError: function (frame) {
+                logMessage(`STOMP Error: ${frame.headers['message']} | Body: ${frame.body}`);
+            },
+            onWebSocketError: function(event) {
+                logMessage(`WebSocket Connection Error. Check console and backend CORS/WebSocket config. Details: ${JSON.stringify(event)}`);
+            },
+            onWebSocketClose: function(event) {
+                logMessage(`WebSocket Connection Closed. Code: ${event.code}, Reason: ${event.reason}`);
+            }
+        });
+
+        logMessage('Activating STOMP client...');
+        stompClient.activate(); // Activate the client to connect
+    }
+
+    // Internal function, called after successful STOMP connect
+    function subscribeToRoomInternal() {
+        if (stompClient && stompClient.active) {
+            const roomId = chatRoomIdInput.value;
+            if (!roomId) {
+                alert("Please enter a Chat Room ID to subscribe.");
+                return;
+            }
+            const topic = `/topic/room.${roomId}`;
+            logMessage(`Subscribing to ${topic}`);
+            stompClient.subscribe(topic, function (messageOutput) {
+                try {
+                    const message = JSON.parse(messageOutput.body);
+                    const senderName = message.sender && message.sender.firstName ? message.sender.firstName : 'Unknown';
+                    const formattedTime = message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : 'N/A';
+                    logMessage(`MESSAGE [${formattedTime}] ${senderName}: ${message.content}`);
+                } catch (e) {
+                    logMessage(`Error parsing message body: ${messageOutput.body} | Error: ${e}`);
+                }
+            });
+            logMessage(`Successfully subscribed to room ${roomId}`);
+        } else {
+            logMessage('Cannot subscribe. STOMP client not connected or active.');
+            alert('Not connected. Please use "Connect & Subscribe" first.');
+        }
+    }
+
+    // Optional: A separate subscribe button if you don't auto-subscribe on connect
+    // function subscribeToRoom() {
+    //     subscribeToRoomInternal();
+    // }
+
+
+    function sendMessage() {
+        if (stompClient && stompClient.active) {
+            const roomId = chatRoomIdInput.value;
+            const messageContent = messageInput.value;
+            if (!roomId) {
+                alert("Please enter a Chat Room ID.");
+                return;
+            }
+            if (messageContent.trim() !== "") {
+                logMessage(`Attempting to send to /app/chat.send: Room ${roomId}, Msg: ${messageContent}`);
+                stompClient.publish({
+                    destination: '/app/chat.send', // Your @MessageMapping destination
+                    body: JSON.stringify({
+                        chatRoomId: parseInt(roomId),
+                        content: messageContent
+                    })
+                });
+                messageInput.value = '';
+            } else {
+                alert("Message content cannot be empty.");
+            }
+        } else {
+            alert('Not connected. Please connect first using the "Connect & Subscribe" button.');
+        }
+    }
+
+    function disconnect() {
+        if (stompClient && stompClient.active) {
+            stompClient.deactivate();
+            logMessage("STOMP client deactivated.");
+        } else {
+            logMessage("STOMP client is not active or not initialized.");
+        }
+    }
+
+</script>
+</body>
+</html>

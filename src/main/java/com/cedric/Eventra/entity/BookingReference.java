@@ -22,8 +22,4 @@ public class BookingReference {
 
     @Column(unique = true, nullable = false)
     private String referenceNo;
-
-
-
-
 }

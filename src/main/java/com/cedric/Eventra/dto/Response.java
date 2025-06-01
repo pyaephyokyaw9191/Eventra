@@ -17,35 +17,51 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
-    //generic
+    // generic
     private int status;
     private String message;
 
-    //for login
+    // for login
     private String token;
     private UserRole role;
     private Boolean isActive;
     private String expirationTime;
 
-    //user data output
+    // user data output
     private UserDTO user;
     private List<UserDTO> users;
 
-    //Booking data output
+    // Booking data output
     private BookingDTO booking;
     private List<BookingDTO> bookings;
 
-    //Room data output
+    // Room data output
     private OfferedServiceDTO service;
     private List<OfferedServiceDTO> services;
 
-    //Payment data output
+    // Payment data output
     private PaymentDTO payment;
     private List<PaymentDTO> payments;
 
-    // Not for now
-//    private NotificationDTO notification;
-//    private List<NotificationDTO> notifications;
+    // Notifications
+    private NotificationDTO notification;
+    private List<NotificationDTO> notifications;
+
+    // Review data output (NEWLY ADDED)
+    private ReviewDTO review;                   // For a single ReviewDTO
+    private List<ReviewDTO> reviews;             // For a list of ReviewDTOs
+
+    // Report data output
+    private ProviderDashboardSummaryDTO dashboardSummary;
+
+    // ServiceProviderProfile data output (NEWLY ADDED)
+    private ServiceProviderProfileDTO serviceProviderProfile;
+    private List<ServiceProviderProfileDTO> serviceProviderProfiles;
+
+    // chat service
+    private ChatRoomDTO chatRoom;                // For a single ChatRoomDTO
+    private List<ChatRoomDTO> chatRooms;          // For a list of ChatRoomDTOs
+    private List<ChatMessageDTO> chatMessages;    // For a list of ChatMessageDTOs
 
     private final LocalDateTime timestamp = LocalDateTime.now();
 }
