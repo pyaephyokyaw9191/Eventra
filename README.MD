@@ -2,7 +2,7 @@
 
 Eventra is a robust Spring Boot application designed to connect customers with various service providers for events. It provides a platform for users to register, browse offered services, make bookings, leave reviews, and communicate with service providers. Service providers can manage their profiles, services, bookings, and track their performance.
 
-## ✨ Features
+## Features
 
 * **User Management & Authentication:**
     * User registration (Customer, Service Provider, Admin roles)
@@ -40,7 +40,7 @@ Eventra is a robust Spring Boot application designed to connect customers with v
 * **Admin Functionality:**
     * Initial admin users created by `DataInitializer`.
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 * **Backend:**
     * Java 21
@@ -57,7 +57,7 @@ Eventra is a robust Spring Boot application designed to connect customers with v
 * **API Documentation:**
     * Postman API Collection
 
-## 📂 Project Structure
+## Project Structure
 
 The project is organized into the following primary packages within `src/main/java/com/cedric/Eventra/`:
 
@@ -77,7 +77,7 @@ Other important locations:
 -   `src/main/resources/application.properties`: Main application configuration file.
 -   `src/main/resources/Initialize-images/`: Source images for data initialization.
 
-## 🚀 Setup and Installation
+## Setup and Installation
 
 1.  **Prerequisites:**
     * JDK 21 or newer
@@ -120,7 +120,7 @@ Other important locations:
     Alternatively, you can run the main application class `EventraApplication.java` from your IDE.
     The application will start on port `9090` by default.
 
-## 📖 API Endpoints & Documentation
+## API Endpoints & Documentation
 
 The application uses Springdoc OpenAPI to generate API documentation. Once the application is running, you can access the Swagger UI at:
 
@@ -136,7 +136,7 @@ Key API groups include:
 * `/api/reports`: Provider dashboard summaries.
 * `/uploads/...`: Accessing uploaded files (requires proper serving configuration, e.g., via a resource handler).
 
-## 🌱 Data Initialization
+## Data Initialization
 
 * The `DataInitializer` class runs on application startup if no users are found in the database. 
 * It populates the database with:
@@ -149,7 +149,7 @@ Key API groups include:
     * `cover-photos/cover-photo.jpg`
     * `service-images/service-image.jpg`
 
-## 📝 To-Do / Future Enhancements
+## To-Do / Future Enhancements
 
 * **Full Payment Gateway Integration:** Move beyond simulated payments and integrate a real payment provider like Stripe for bookings and subscriptions.
 * **Advanced Search & Filtering:** Implement more sophisticated search and filtering for services (e.g., by location, rating, availability, category).
@@ -158,5 +158,5 @@ Key API groups include:
 * **Enhanced Reporting:** More detailed reports for providers and admins.
 * **Calendar Integration:** For managing bookings and availability.
 
-## 📄 License
+## License
 (License to be determined)
